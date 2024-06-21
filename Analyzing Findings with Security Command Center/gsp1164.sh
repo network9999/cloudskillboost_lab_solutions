@@ -28,6 +28,10 @@ gcloud pubsub subscriptions create $SUBSCRIPTION_ID --topic=$TOPIC_ID
 echo "Enabling Security Command Center API..."
 gcloud services enable securitycenter.googleapis.com
 
+# Ensure SCC is properly set up for the project
+echo "Setting up Security Command Center..."
+gcloud scc settings set-organization-settings --project=$PROJECT_ID
+
 # Create continuous export to Pub/Sub
 echo "Creating continuous export to Pub/Sub..."
 gcloud scc notifications create export-findings-pubsub \
@@ -38,7 +42,7 @@ gcloud scc notifications create export-findings-pubsub \
 
 # Create a virtual machine to generate findings
 echo "Creating a virtual machine to generate findings..."
-gcloud compute instances create instance-1 --zone=$ZONE --machine-type=e2-micro --scopes=https://www.googleapis.com/auth/cloud-platform
+gcloud compute instances create instance-1 --zone=$REGION-a --machine-type=e2-micro --scopes=https://www.googleapis.com/auth/cloud-platform
 
 # Simulate fetching messages from Pub/Sub subscription
 echo "Fetching messages from Pub/Sub subscription..."
@@ -70,18 +74,5 @@ bq query --apilog=/dev/null --use_legacy_sql=false "SELECT finding_id,event_time
 # Create a GCS bucket for exporting existing findings
 echo "Creating GCS bucket..."
 gsutil mb -l $REGION gs://$BUCKET_NAME
-
-# Export existing findings to GCS
-EXPORT_URI="gs://$BUCKET_NAME/$EXPORT_FILE"
-echo "Exporting existing findings to GCS..."
-gcloud scc findings bulk-export --project=$PROJECT_ID --output-config="{\"gcsDestination\":{\"uri\":\"$EXPORT_URI\"},\"format\":\"JSONL\"}"
-
-# Wait for the export to complete
-echo "Waiting for export to complete..."
-sleep 120  # Wait for 2 minutes to ensure the export completes
-
-# Load exported findings into BigQuery
-echo "Loading exported findings into BigQuery..."
-bq load --source_format=NEWLINE_DELIMITED_JSON $DATASET_ID.old_findings $EXPORT_URI resource:JSON,finding:JSON
 
 echo "Script execution completed!"
