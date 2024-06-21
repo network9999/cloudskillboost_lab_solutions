@@ -5,7 +5,7 @@ gsutil mb gs://$DEVSHELL_PROJECT_ID
 gsutil mb gs://$DEVSHELL_PROJECT_ID-2
 
 
-curl -LO raw.https://github.com/network9999/cloudskillboost_lab_solutions/blob/main/JuneArcade_week3/gsp421/demo-image1.png
+curl -LO https://github.com/network9999/cloudskillboost_lab_solutions/blob/main/JuneArcade_week3/gsp421/demo-image1.png
 
 curl -LO https://github.com/network9999/cloudskillboost_lab_solutions/blob/main/JuneArcade_week3/gsp421/demo-image2.png
 
