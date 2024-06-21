@@ -17,3 +17,5 @@ gsutil cp demo-image1.png gs://$DEVSHELL_PROJECT_ID/demo-image1.png
 gsutil cp demo-image2.png gs://$DEVSHELL_PROJECT_ID/demo-image2.png
 
 gsutil cp demo-image1-copy.png gs://$DEVSHELL_PROJECT_ID-2/demo-image1-copy.png
+
+echo "Subscribe to https://www.youtube.com/channel/UCO0joS82Lx31DcQD92lAkVA"
