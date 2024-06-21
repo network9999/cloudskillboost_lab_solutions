@@ -42,7 +42,7 @@ gcloud scc notifications create export-findings-pubsub \
 
 # Create a virtual machine to generate findings
 echo "Creating a virtual machine to generate findings..."
-gcloud compute instances create instance-1 --zone=$REGION-a --machine-type=e2-micro --scopes=https://www.googleapis.com/auth/cloud-platform
+gcloud compute instances create instance-1 --zone=$ZONE --machine-type=e2-micro --scopes=https://www.googleapis.com/auth/cloud-platform
 
 # Simulate fetching messages from Pub/Sub subscription
 echo "Fetching messages from Pub/Sub subscription..."
