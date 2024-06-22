@@ -62,4 +62,8 @@ bq query "SELECT name, count FROM babynames.names2010 WHERE gender = 'F' ORDER B
 echo -e "\nQuery the top 5 most unusual boys' names"
 bq query "SELECT name, count FROM babynames.names2010 WHERE gender = 'M' ORDER BY count ASC LIMIT 5"
 
+# Task 7: Clean up
+echo -e "\nTask 7: Clean up by removing the babynames dataset"
+bq rm -r -f babynames
+
 echo -e "\nAll tasks have been successfully completed."
