@@ -44,7 +44,7 @@ gcloud sql instances create $INSTANCE_ID \
     --cpu=4 \
     --memory=16GB \
     --region=$REGION \
-    --root-password=my-secure-password
+    --root-password=network
 
 # Wait for the instance to be created
 echo "Waiting for Cloud SQL instance to be created..."
