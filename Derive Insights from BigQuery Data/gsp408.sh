@@ -1,40 +1,91 @@
 #!/bin/bash
 
-# Function to execute a BigQuery query
-function execute_query {
-    local query="$1"
-    local output_file="$2"
-    bq query --nouse_legacy_sql "$query" > "$output_file"
-}
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+fullVisitorId
+FROM `data-to-insights.ecommerce.rev_transactions`'
 
-# Task 1: Pin a project to the BigQuery resource tree
-# This cannot be automated with CLI as it involves UI interaction.
+bq query --use_legacy_sql=false '#standardSQL
+SELECT fullVisitorId hits_page_pageTitle
+FROM `data-to-insights.ecommerce.rev_transactions` LIMIT 1000'
 
-# Task 2: Find the total number of customers who went through checkout
-# Fixing and running various queries to identify errors and get correct results
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+fullVisitorId
+, hits_page_pageTitle
+FROM `data-to-insights.ecommerce.rev_transactions` LIMIT 1000'
 
-echo "Task 2: Find the total number of customers who went through checkout"
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+fullVisitorId
+, hits_page_pageTitle
+FROM `data-to-insights.ecommerce.rev_transactions` LIMIT 1000'
 
-# Corrected query to view 1000 items
-query1="SELECT * FROM \`data-to-insights.ecommerce.rev_transactions\` LIMIT 1000"
-execute_query "$query1" "task2_query1_results.txt"
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+COUNT(DISTINCT fullVisitorId) AS visitor_count
+, hits_page_pageTitle
+FROM `data-to-insights.ecommerce.rev_transactions`
+GROUP BY hits_page_pageTitle'
 
-# Query to count unique visitors who reached checkout
-query2="SELECT COUNT(DISTINCT fullVisitorId) AS visitor_count FROM \`data-to-insights.ecommerce.rev_transactions\` WHERE hits_page_pageTitle = 'Checkout Confirmation'"
-execute_query "$query2" "task2_query2_results.txt"
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+COUNT(DISTINCT fullVisitorId) AS visitor_count
+, hits_page_pageTitle
+FROM `data-to-insights.ecommerce.rev_transactions`
+WHERE hits_page_pageTitle = "Checkout Confirmation"
+GROUP BY hits_page_pageTitle'
 
-# Task 3: List the cities with the most transactions with your ecommerce site
-echo "Task 3: List the cities with the most transactions with your ecommerce site"
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+geoNetwork_city,
+SUM(totals_transactions) AS totals_transactions,
+COUNT( DISTINCT fullVisitorId) AS distinct_visitors
+FROM
+`data-to-insights.ecommerce.rev_transactions`
+GROUP BY geoNetwork_city'
 
-# Query to list cities with distinct visitors and total transactions
-query3="SELECT geoNetwork_city, SUM(totals_transactions) AS total_products_ordered, COUNT(DISTINCT fullVisitorId) AS distinct_visitors, SUM(totals_transactions) / COUNT(DISTINCT fullVisitorId) AS avg_products_ordered FROM \`data-to-insights.ecommerce.rev_transactions\` GROUP BY geoNetwork_city HAVING avg_products_ordered > 20 ORDER BY avg_products_ordered DESC"
-execute_query "$query3" "task3_query_results.txt"
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+geoNetwork_city,
+SUM(totals_transactions) AS totals_transactions,
+COUNT( DISTINCT fullVisitorId) AS distinct_visitors
+FROM
+`data-to-insights.ecommerce.rev_transactions`
+GROUP BY geoNetwork_city
+ORDER BY distinct_visitors DESC'
 
-# Task 4: Find the total number of products in each product category
-echo "Task 4: Find the total number of products in each product category"
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+geoNetwork_city,
+SUM(totals_transactions) AS total_products_ordered,
+COUNT( DISTINCT fullVisitorId) AS distinct_visitors,
+SUM(totals_transactions) / COUNT( DISTINCT fullVisitorId) AS avg_products_ordered
+FROM
+`data-to-insights.ecommerce.rev_transactions`
+GROUP BY geoNetwork_city
+ORDER BY avg_products_ordered DESC'
 
-# Query to count distinct products in each product category
-query4="SELECT COUNT(DISTINCT hits_product_v2ProductName) as number_of_products, hits_product_v2ProductCategory FROM \`data-to-insights.ecommerce.rev_transactions\` WHERE hits_product_v2ProductName IS NOT NULL GROUP BY hits_product_v2ProductCategory ORDER BY number_of_products DESC LIMIT 5"
-execute_query "$query4" "task4_query_results.txt"
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+geoNetwork_city,
+SUM(totals_transactions) AS total_products_ordered,
+COUNT( DISTINCT fullVisitorId) AS distinct_visitors,
+SUM(totals_transactions) / COUNT( DISTINCT fullVisitorId) AS avg_products_ordered
+FROM
+`data-to-insights.ecommerce.rev_transactions`
+GROUP BY geoNetwork_city
+HAVING avg_products_ordered > 20
+ORDER BY avg_products_ordered DESC'
 
-echo "All tasks completed. Check the result files for details."
+bq query --use_legacy_sql=false '#standardSQL
+SELECT
+COUNT(DISTINCT hits_product_v2ProductName) as number_of_products,
+hits_product_v2ProductCategory
+FROM `data-to-insights.ecommerce.rev_transactions`
+WHERE hits_product_v2ProductName IS NOT NULL
+GROUP BY hits_product_v2ProductCategory
+ORDER BY number_of_products DESC
+LIMIT 5'
+
+echo "All tasks completed. Check the progress."
