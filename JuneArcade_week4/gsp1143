@@ -2,7 +2,6 @@
 
 # Configuration
 PROJECT_ID="<your-project-id>"
-REGION="<your-region>"
 LAKE_NAME="sensors"
 ZONE_NAME="temperature-raw-data"
 ASSET_NAME="measurements"
