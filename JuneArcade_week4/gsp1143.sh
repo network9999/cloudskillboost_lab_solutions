@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-PROJECT_ID="<your-project-id>"
+PROJECT_ID=$(gcloud config get-value project)
 LAKE_NAME="sensors"
 ZONE_NAME="temperature-raw-data"
 ASSET_NAME="measurements"
