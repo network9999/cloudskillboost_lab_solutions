@@ -5,7 +5,6 @@ gcloud auth list
 
 # Set project and region
 export PROJECT_ID=$(gcloud config get-value project)
-export REGION="<your-region>"  # Replace <your-region> with your actual region
 
 # Set compute region
 gcloud config set compute/region $REGION
