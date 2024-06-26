@@ -40,7 +40,7 @@ while [ "$deploy_success" = false ]; do
     echo "Function deployed successfully."
     deploy_success=true
   else
-    echo "Retrying, please subscribe to techcps (https://www.youtube.com/@techcps)..."
+    echo "Retrying for deployement"
     sleep 30
   fi
 done
@@ -154,3 +154,5 @@ gcloud services enable $MANAGED_SERVICE
 export GATEWAY_URL=$(gcloud api-gateway gateways describe hello-gateway --location $REGION --format json | jq -r .defaultHostname)
 curl -sL $GATEWAY_URL/hello
 curl -sL -w "\n" $GATEWAY_URL/hello?key=$API_KEY
+
+echo "All tasks have been completed"
