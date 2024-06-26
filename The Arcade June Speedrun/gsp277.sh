@@ -7,3 +7,5 @@ curl -LO https://github.com/network9999/cloudskillboost_lab_solutions/blob/main/
 gsutil cp demo-image.jpg gs://$BUCKET-bucket/demo-image.jpg
 
 gsutil acl ch -u allUsers:R gs://$BUCKET-bucket/demo-image.jpg
+
+echo "All tasks have been compeleted"
