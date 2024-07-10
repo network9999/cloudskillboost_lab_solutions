@@ -158,9 +158,8 @@ wget map.jpg https://storage.googleapis.com/cloud-training/gsp315/map.jpg
 gsutil cp map.jpg gs://$DEVSHELL_PROJECT_ID-bucket/map.jpg
 
 # Remove previous cloud engineer's access
-PREVIOUS_ENGINEER="student-03-7614ea627ad0@qwiklabs.net"
 gcloud projects remove-iam-policy-binding $DEVSHELL_PROJECT_ID \
-  --member="user:$PREVIOUS_ENGINEER" \
+  --member="user:$USER2" \
   --role="roles/viewer"
 
 # Confirm the action
