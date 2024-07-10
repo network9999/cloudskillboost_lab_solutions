@@ -1,8 +1,8 @@
-#!/bin/bash
-
-# Authenticate the user and set the project
+# Authenticate and set the project
 gcloud auth list
+
 export REGION="${ZONE%-*}"
+
 gcloud config set project $DEVSHELL_PROJECT_ID
 
 # Enable necessary services
@@ -10,7 +10,7 @@ gcloud services enable artifactregistry.googleapis.com logging.googleapis.com pu
 
 sleep 60
 
-# Create a Cloud Storage bucket
+# Create a bucket
 gsutil mb -l $REGION gs://$DEVSHELL_PROJECT_ID-bucket
 
 # Create a Pub/Sub topic
@@ -25,10 +25,10 @@ gcloud projects add-iam-policy-binding $DEVSHELL_PROJECT_ID \
   --member serviceAccount:$SERVICE_ACCOUNT \
   --role roles/pubsub.publisher
 
-# Create a directory for the project and navigate into it
-mkdir -p techcps && cd techcps
+# Create a directory and navigate into it
+mkdir techcps && cd techcps
 
-# Create index.js file with the function code
+# Create the index.js file
 cat > index.js <<'EOF_CP'
 const functions = require('@google-cloud/functions-framework');
 const crc32 = require("fast-crc32c");
@@ -49,12 +49,12 @@ functions.cloudEvent('memories-thumbnail-generator', cloudEvent => {
   const bucket = gcs.bucket(bucketName);
   const topicName = "topic-memories-290";
   const pubsub = new PubSub();
-  if (fileName.search("64x64_thumbnail") == -1) {
+  if ( fileName.search("64x64_thumbnail") == -1 ){
     // doesn't have a thumbnail, get the filename extension
     var filename_split = fileName.split('.');
-    var filename_ext = filename_split[filename_split.length - 1];
-    var filename_without_ext = fileName.substring(0, fileName.length - filename_ext.length);
-    if (filename_ext.toLowerCase() == 'png' || filename_ext.toLowerCase() == 'jpg') {
+    var filename_ext = filename_split[filename.length - 1];
+    var filename_without_ext = fileName.substring(0, fileName.length - filename_ext.length );
+    if (filename_ext.toLowerCase() == 'png' || filename_ext.toLowerCase() == 'jpg'){
       // only support png and jpg at this point
       console.log(`Processing Original: gs://${bucketName}/${fileName}`);
       const gcsObject = bucket.file(fileName);
@@ -72,21 +72,21 @@ functions.cloudEvent('memories-thumbnail-generator', cloudEvent => {
           })
           .on("finish", () => {
             console.log(`Success: ${fileName} → ${newFilename}`);
-            // set the content-type
-            gcsNewObject.setMetadata(
+              // set the content-type
+              gcsNewObject.setMetadata(
               {
-                contentType: 'image/' + filename_ext.toLowerCase()
-              }, function (err, apiResponse) { });
-            pubsub
-              .topic(topicName)
-              .publisher()
-              .publish(Buffer.from(newFilename))
-              .then(messageId => {
-                console.log(`Message ${messageId} published.`);
-              })
-              .catch(err => {
-                console.error('ERROR:', err);
-              });
+                contentType: 'image/'+ filename_ext.toLowerCase()
+              }, function(err, apiResponse) {});
+              pubsub
+                .topic(topicName)
+                .publisher()
+                .publish(Buffer.from(newFilename))
+                .then(messageId => {
+                  console.log(`Message ${messageId} published.`);
+                })
+                .catch(err => {
+                  console.error('ERROR:', err);
+                });
           });
       });
     }
@@ -100,11 +100,11 @@ functions.cloudEvent('memories-thumbnail-generator', cloudEvent => {
 });
 EOF_CP
 
-# Replace placeholders with actual values in index.js
+# Update the function name and topic name in the index.js file
 sed -i "8c\functions.cloudEvent('$FUNCTION_NAME', cloudEvent => { " index.js
 sed -i "18c\  const topicName = '$TOPIC_NAME';" index.js
 
-# Create package.json file
+# Create the package.json file
 cat > package.json <<EOF_CP
 {
     "name": "thumbnails",
@@ -127,7 +127,7 @@ cat > package.json <<EOF_CP
 }
 EOF_CP
 
-# Function to deploy the Cloud Function
+# Function to deploy the cloud function
 deploy_function() {
     gcloud functions deploy $FUNCTION_NAME \
     --gen2 \
@@ -140,25 +140,28 @@ deploy_function() {
     --quiet
 }
 
-# Loop to deploy the function until successful
+# Try deploying the function until successful
 deploy_success=false
+
 while [ "$deploy_success" = false ]; do
   if deploy_function; then
-    echo "Function deployed successfully."
+    echo "Function deployed successfully (https://www.youtube.com/@techcps).."
     deploy_success=true
   else
-    echo "Retrying deployment..."
+    echo "please subscribe to techcps (https://www.youtube.com/@techcps)."
     sleep 10
   fi
 done
 
-# Download a sample image and upload it to the bucket
-wget -O map.jpg https://storage.googleapis.com/cloud-training/gsp315/map.jpg
+# Download and upload a sample image to the bucket
+wget map.jpg https://storage.googleapis.com/cloud-training/gsp315/map.jpg
 gsutil cp map.jpg gs://$DEVSHELL_PROJECT_ID-bucket/map.jpg
 
-# Remove IAM policy binding for a user
+# Remove previous cloud engineer's access
+PREVIOUS_ENGINEER="student-03-7614ea627ad0@qwiklabs.net"
 gcloud projects remove-iam-policy-binding $DEVSHELL_PROJECT_ID \
---member=user:$USER2 \
---role=roles/viewe+r
+  --member="user:$PREVIOUS_ENGINEER" \
+  --role="roles/viewer"
 
-echo "You have completed all the tasks."
+# Confirm the action
+echo "Removed $PREVIOUS_ENGINEER with role roles/viewer from the project $DEVSHELL_PROJECT_ID"
